@@ -1,0 +1,90 @@
+		CLI Mongo:
+
+*descargar mongo db y agregarlo al path del sistema (C:\Program Files\MongoDB\Server\4.4\bin)
+
+*mongoDb es multi cliente , osea me puedo conectar de varios clientes a la base y refleja en todos los cliente conectados
+
+*robo 3t es un cliente Grafico  mongo lo podemos bajar de https://robomongo.org/  (descargar robo3t solamente)
+
+* en el archivo binario storage.bson se guarda toda la informacion en forma binaria 
+
+*Las querys se ejecutan en formato JS , no existe formato SQL 
+
+Cada vez que ingreso un registro el motor de l,a base me genera un _ID automaticamente para cada documento ,
+el object id ocupa 12 bytes y tambien tiene metodos como por ejemplo para obtener el timestamp
+{
+        "_id" : ObjectId("5fe68381 6946400895 c6996b"),  nomenclatura del id es : ("timestamp ProcessId+NumConexion ContadorAscendenteUnico")
+        "nombre" : "heladera",
+        "marca" : "ACTME"
+}
+
+Web comversor de objectID -> https://steveridout.github.io/mongo-object-time/   , me comvierte el objectId para saber exactamente la fecha de id 
+
+show dbs : me lista las bases existentes que tienen algo de informacion 
+
+db : me muestra la base que estoy actualmente 
+
+use nombreDeLaBaseACrearOMoverme : me crea una nueva base o me mueve a la base si es que ya existe 
+
+show collections : me muestra las colleciones creadas (seria como ver las tablas )
+
+CREATE Collections IMPLICITO:
+ db.usuarios.insert({nombre:"alex",edad:23}) : me crear una colecion implicitamente e inserta un registro .
+
+CREATE Collections EXPLICITO:
+ db.createCollection("productos") -> me crea una collection productos , que seria como crear una tabla.
+
+
+INSERT:
+  db.productos.insert({nombre:"TV", marca: "LG"}) :  inserto un documento dentro de la collections productos
+  db.usuarios.insert([{nombre:"martin",edad:28},{nombre:"matias",edad:45}]) :inserto dos documento a la vez .\
+
+SELECT:
+  db.productos.find() : asi veo todos los registros de la collection
+  db.productos.find().pretty() :  me lista todos los documento pero en formato JSON
+
+DROP collection:
+db.productos.drop()  :borra la collection productos
+
+
+db.usuarios.find().limit(3) :  me lista solo los tres primero datos , los filtra por orden de insercion
+db.usuarios.find().limit(1).pretty()   :  me lista el primer registro y lo formatea
+
+COUNT :
+ db.usuarios.find().count()  : me retorna la cantidad de registros de la collections
+
+SORT:
+db.usuarios.find().sort({nombre: 1}) : ordena alfabeticamente  en forma ascendente por el campo nombre 
+db.usuarios.find().sort({nombre: -1}) : ordena alfabeticamente  en forma descendente por el campo nombre 
+db.usuarios.find().sort({edad: 1}) : ordena de forma ascendente por el campo edad
+db.usuarios.find().sort({edad: 1, nombre: -1}) : ordeno por edad y nombre por si tengo registros con la misma edad
+db.usuarios.find().sort({edad: 1}).limit(1)  : busco la persona mas joven 
+db.usuarios.find().sort({edad: -1}).limit(1)  : busco la persona mas vieja
+
+Filtros de informacion :  find seria como el select de SQL
+db.usuarios.find({nombre:"pedro"})  : me retorna todos los documentos con el nombre pedro 
+db.usuarios.find({nombre:"pedro" , edad:45})  : filtro AND debe coincidir con el nombre y la edad 
+db.usuarios.find({$and:[{nombre:"pedro"} ,{ edad:45}]}) : otra manera de hacer un and 
+db.usuarios.find({$or:[{nombre:"pedro"} ,{ edad:"45"}]}) : filtro or , debe cumplir con al meno una de las dos condiciones tener 45, llamarse pedro o ambos 
+
+db.usuarios.find({edad:{$gt:25 } })  : me retorna los registro que la edad es mayor a 25
+db.usuarios.find({edad:{$gte:28 } } : me retorna los registro que la edad es mayor o igual a 28
+db.usuarios.find({edad:{$gte:28 } }).sort({edad:1}) : me retorna los registro que la edad es mayor o igual a 28 ordenados de forma ascendente
+db.usuarios.find({edad:{$lt:28 } }).sort({edad:1})  :me retorna los registro que la edad es menor  a 28 ordenados de forma ascendente
+db.usuarios.find({edad:{$lte:23 } }).sort({edad:1})   :me retorna los registro que la edad es menor o igual  a 23 ordenados de forma ascendente
+db.usuarios.find({edad:{$ne:23 } }).sort({edad:1})  :  me retorna los registro que tiene la edad distinto a 23 (not equals)
+
+DELETE :
+ db.usuarios.deleteOne({nombre:"alex"}) :  borra el primer documento con nombre igual a alex ,SOLO EL PRIMERO!
+ db.usuarios.deleteMany({nombre:"Ana"}) : borra todos los registros que tenga nombre Ana
+
+UPDATE : para actualizar documentos puedo utilizar el id 
+db.usuarios.update({"_id" : ObjectId("5fe6890a6946400895c69978")},{$set: {edad:99}})  : me actualiza la edad del objeto con id ("5fe6890a6946400895c69978") 
+db.usuarios.update({"edad":45},{$set: {edad:28}},{multi:true})  : me actualiza la edad a 28 de todos los documento con edad 45.
+db.usuarios.update({},{$set: {curso:false}},{multi:true})  :  agrego a todos los documento el campo "curso en false , si no pongo el multi solo lo agrega al primer documento
+db.usuarios.update({nombre:"matias"},{$set: {curso:true}},{multi:true})  : a todo los documento con nombre matias le actualizo el curso a true
+
+
+
+
+
